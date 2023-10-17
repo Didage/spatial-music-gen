@@ -10,7 +10,7 @@ class MusicGen:
     model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
     model.to(device)
     processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
-    generation = 0
+    generation = 1
 
     def generate_music(self, prompt):
         device=self.device
@@ -27,17 +27,17 @@ class MusicGen:
         )
         sampling_rate = model.config.audio_encoder.sampling_rate
 
-        print(os.path.isdir("./audios/"))
-        name = "./audios/Gen" + str(generation) + "-musicgen-out"
+        name = "audios/Gen" + str(generation) + "-musicgen-out"
 
         audio_values = model.generate(**inputs.to(device), do_sample=True, guidance_scale=3, max_new_tokens=1503)
         scipy.io.wavfile.write(name+"A.wav", rate=sampling_rate, data=audio_values[0, 0].cpu().numpy())
         print("Generated file 1")
         audio_values = model.generate(**inputs.to(device), do_sample=True, guidance_scale=3, max_new_tokens=1503)
         scipy.io.wavfile.write(name+"B.wav", rate=sampling_rate, data=audio_values[0, 0].cpu().numpy())
-
+        print("Generated file 2")
         audio_values = model.generate(**inputs.to(device), do_sample=True, guidance_scale=3, max_new_tokens=1503)
         scipy.io.wavfile.write(name+"C.wav", rate=sampling_rate, data=audio_values[0, 0].cpu().numpy())
+        print("Generated file 3")
 
         generation += 1
 
