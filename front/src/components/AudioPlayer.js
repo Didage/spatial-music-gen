@@ -73,7 +73,6 @@ function AudioPlayer() {
       </select>
       {selectedAudio && (
         <div>
-          {selectedAudio}
           <ReactAudioPlayer src={selectedAudio} controls autoPlay />
         </div>
       )}
