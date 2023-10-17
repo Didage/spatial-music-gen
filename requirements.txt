@@ -6,3 +6,10 @@ torchaudio --index-url https://download.pytorch.org/whl/cpu
 tensorflow
 scipy
 IPython
+
+psycopg2
+pydantic
+uvicorn
+databases
+fastapi
+SQLAlchemy
