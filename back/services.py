@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 import models, schemas
 from musicgen import MusicGen
+from datetime import datetime
 
 model = MusicGen()
 
@@ -16,16 +17,18 @@ def get_generation_by_prompt(db: Session, prompt: str):
 def create_generation(db: Session, generation: schemas.GenerationBase):
 
     data = str(generation.prompt)
+    title = str(generation.title)
 
-    files = model.generate_music(data)
+    file = model.generate_music(data, title)
+    current_date = datetime.now()
+    formatted_datetime = current_date.strftime("%A, %B %d, %Y %H:%M:%S")
 
     db_generation = models.Generation(
         session_name = generation.session_name,
+        title = generation.title,
         prompt = generation.prompt,
-        audio1URL = files[0],
-        audio2URL = files[1],
-        audio3URL = files[2],
-        creationDate = generation.creationDate)
+        audioURL = file,
+        creationDate = formatted_datetime)
     db.add(db_generation)
     db.commit()
     db.refresh(db_generation)

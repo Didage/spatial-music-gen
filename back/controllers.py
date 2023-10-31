@@ -11,7 +11,6 @@ from sqlalchemy.orm import sessionmaker
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:1234@localhost/spatial_music_gen_db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
-# engine = create_engine("sqlite://", echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -33,14 +32,11 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/generations/", response_model=List[schemas.GenerationBase])
+@app.get("/generations/", response_model=List[schemas.GenerationResponse])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = services.get_generations(db, skip=skip, limit=limit)
     return users
 
-@app.post("/generations/", response_model=schemas.GenerationBase)
-def create_generation(generation: schemas.GenerationBase, db: Session = Depends(get_db)):
-    # db_user = services.get_user_by_email(db, email=user.email)
-    # if db_user:
-    #     raise HTTPException(status_code=400, detail="Email already registered")
+@app.post("/generations/", response_model=schemas.GenerationRequest)
+def create_generation(generation: schemas.GenerationRequest, db: Session = Depends(get_db)):
     return services.create_generation(db=db, generation=generation)

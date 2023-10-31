@@ -13,3 +13,5 @@ uvicorn
 databases
 fastapi
 SQLAlchemy
+
+pydub

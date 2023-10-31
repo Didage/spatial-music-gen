@@ -1,10 +1,20 @@
 from pydantic import BaseModel
+from uuid import UUID
 
-class GenerationBase(BaseModel):
-    id: int
+class GenerationRequest(BaseModel):
     session_name: str
+    title: str
     prompt: str
-    audio1URL: str
-    audio2URL: str
-    audio3URL: str
+
+class GenerationBase(GenerationRequest):
+    id: UUID
+    audioURL: str
     creationDate: str
+    
+class GenerationResponse(BaseModel):
+    id: UUID
+    session_name: str
+    title: str
+    prompt: str
+    audioURL:str
+    creationDate:str
