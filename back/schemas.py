@@ -18,3 +18,6 @@ class GenerationResponse(BaseModel):
     prompt: str
     audioURL:str
     creationDate:str
+
+class GenerationPostResponse(GenerationRequest):
+    audioURL:str

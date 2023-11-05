@@ -11,8 +11,8 @@ def get_generations(db: Session, skip: int = 0, limit: int = 100):
 def get_generation(db: Session, generation_id: int):
     return db.query(models.Generation).filter(models.Generation.id == generation_id).first()
 
-def get_generation_by_prompt(db: Session, prompt: str):
-    return db.query(models.Generation).filter(models.Generation.promt == prompt).first()
+def get_generation_by_session_name(db: Session, session_name: str):
+    return db.query(models.Generation).filter(models.Generation.session_name == session_name).first()
 
 def create_generation(db: Session, generation: schemas.GenerationBase):
 

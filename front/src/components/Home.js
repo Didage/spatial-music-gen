@@ -1,32 +1,83 @@
-
-import React, { useState, useEffect } from 'react';
-import AudioPlayer from 'react-audio-player';
-import './Home.css'; // Import your CSS file for styling
+import React, { useState, useEffect } from "react";
+import AudioPlayer from "react-audio-player";
+import "./Home.css"; // Import your CSS file for styling
 import ReactAudioPlayer from "react-audio-player";
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { v4 as uuidv4 } from "uuid";
 
 function Home() {
   const [selectedAudio, setSelectedAudio] = useState("");
-  const [audioFiles, setAudioFiles] = useState([]);
-  const [inputPrompt, setInputPrompt] = useState('');
+  const [sessionID, setSessionID] = useState("");
+  const [inputPrompt, setInputPrompt] = useState("");
+  const [dataReceived, setDataReceived] = useState(false);
+  const [title, setTitle] = useState("");
+  // const [inputSessionID, setInputSessionID] = useState("");
+  const [fetchingData, setFetchingData] = useState(false);
 
-  const [title, setTitle] = useState('');
-  const [prompt, setPrompt] = useState('');
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     fetchGeneration();
+  //   }, 5000);
 
+  //   return () => clearInterval(intervalId);
+  // }, []);
 
-  useEffect(() => {
-    fetch("http://localhost:8000/generations") 
-      .then((response) => response.json())
-      .then((data) => setAudioFiles(data));
-  }, []);
+  function checkForGeneratedAudio() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve("Checking for created audio");
+      }, 360000);
+    });
+  }
 
-  const handleFileSelection = (event) => {
-    const fileURL = ("http://localhost:3001/" + event.target.value).replace("musicge-", "musicgen").replace("./audios","audios");
-    setSelectedAudio(fileURL);
-  };
+  // async function fetchGenerationByID() {
+  //   try {
+  //     if (sessionID) {
+  //       var response = await fetch("http://localhost:8000/generations/" + sessionID, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         }});
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok.');
+  //       }
+  //       var data = await response.json();
+  //       setSelectedAudio(data.audioURL);
+  //       setDataReceived(true);
+  //       console.log("Data fetched: " + data.audioURL);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+   
+  // }
+
+  // const fetchGeneration = (flagSuccesfullGet) => {
+  //   console.log(sessionID);
+  //   if (sessionID) {
+  //     fetch("http://localhost:8000/generations/" + sessionID, {
+  //       method: "GET",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     })
+  //       .then((response) => {
+  //         if (!response.ok) {
+  //           flagSuccesfullGet = false;
+  //         } else {
+  //           flagSuccesfullGet = true;
+  //           setDataReceived(true);
+  //           var data = response.json();
+  //           setSelectedAudio(response.audioURL);
+  //           console.log(response.audioURL);
+  //         }
+  //       })
+  //       // .catch((error) => {
+  //       //   console.log("Error fetching generation");
+  //       // });
+  //   }
+  // };
 
   const handleInputPromptChange = (event) => {
     setInputPrompt(event.target.value);
@@ -36,35 +87,78 @@ function Home() {
     setTitle(event.target.value);
   };
 
+  const handleSessionIDChange = (event) => {
+    setSessionID(event.target.value);
+  };
+
+  async function handleSessionSubmit() {
+    try {
+      if (sessionID) {
+        console.log("About to fetch");
+        var response = await fetch("http://localhost:8000/generations/" + sessionID, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          }});
+          console.log("First fetch OK");
+        if (!response.ok) {
+          throw new Error('Network response was not ok.');
+        }
+        console.log("response OK");
+        var data = await response.json();
+        console.log(...data)
+        setSelectedAudio(data.audioURL);
+        setDataReceived(true);
+      } else {
+        alert("Please provide an ID")
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    console.log("END of the session submit");
+  }
+
   const postPrompt = () => {
-    fetch('http://localhost:8000/generations/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id:5,
-            session_name: "I created a new session.",
-            prompt: inputPrompt,
-            audio1URL: "audios/Gen0-musicgen-outA.wav",
-            audio2URL: "audios/Gen0-musicgen-outB.wav",
-            audio3URL: "audios/Gen0-musicgen-outC.wav",
-            creationDate: "17-10-23" }),
+    console.log("Entré al POST");
+    setDataReceived(false);
+    const sessionId = uuidv4();
+    fetch("http://localhost:8000/generations/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        session_name: sessionID,
+        title: title,
+        prompt: inputPrompt,
+      }),
+    })
+      .then(() => {
+        setSessionID(sessionID);
       })
-        .then((response) => {
-          if (response.ok) {
-            alert('Request sent successfully.');
-          } else {
-            alert('Request failed.');
-          }
+      .then(() => {
+        setFetchingData(true);
+        checkForGeneratedAudio().then(() => {
+          var successFlag = false;
+          do {
+            // fetchGeneration(successFlag);
+          } while (!successFlag);
+          setDataReceived(true);
+          setFetchingData(false);
         });
+      });
   };
 
   return (
     <Container className="app-container">
       <h1 className="title">Generate music!</h1>
-      <p className="welcome-message">Here you can generate music based on the description of a place you love!</p>
-      
-      <Form onSubmit={postPrompt}>
+      <p className="welcome-message">
+        Here you can generate music based on the description of a place you
+        love!
+      </p>
+      {(!fetchingData || dataReceived) && (
+        <>
+          <Form onSubmit={postPrompt}>
             <Form.Group controlId="titleInput">
               <Form.Control
                 type="text"
@@ -76,28 +170,45 @@ function Home() {
             <Form.Group controlId="promptInput">
               <Form.Control
                 type="text"
-                value={inputPrompt}
                 onChange={handleInputPromptChange}
                 placeholder="Enter a description:"
               />
             </Form.Group>
+            <br></br>
             <Button variant="primary" type="submit">
               Submit
             </Button>
           </Form>
-      <select onChange={handleFileSelection}>
-        <option value="">Select an audio file</option>
-        {audioFiles.map((file, index) => (
-          <>
-            <option key={index} value={file.audioURL}>
-              {file.audio1URL}
-            </option>
-          </>
-        ))}
-      </select>
-      {selectedAudio && (
+
+          <br></br>
+          <h3>Do you already have a session ID?</h3>
+          <Form onSubmit={handleSessionSubmit}>
+            <Form.Group controlId="sessionInput">
+              <Form.Control
+                type="text"
+                onChange={handleSessionIDChange}
+                placeholder="Enter Session ID to fetch saved entity:"
+              />
+            </Form.Group>
+            <br></br>
+
+            <Button variant="primary" type="submit">
+              Get me my old music!
+            </Button>
+          </Form>
+        </>
+      )}
+      {fetchingData &&
+        <h1>Generating your audio! please be patient</h1>
+      }
+      {dataReceived && (
         <div>
-          <ReactAudioPlayer src={selectedAudio} controls autoPlay />
+          <br></br>
+          <ReactAudioPlayer
+            src={"http://localhost:3001/" + selectedAudio}
+            controls
+            autoPlay
+          />
         </div>
       )}
     </Container>

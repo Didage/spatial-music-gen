@@ -6,19 +6,6 @@ import numpy as np
 
 from pydub import AudioSegment
 
-def concatenate_with_crossfade(file_paths, output_file, crossfade_duration):
-    # Load the first audio file
-    combined = AudioSegment.from_wav(file_paths[0])
-
-    # Iterate over the rest of the files, applying crossfade and concatenating
-    for file_path in file_paths[1:]:
-        next_audio = AudioSegment.from_wav(file_path)
-        # Apply crossfade
-        combined = combined.append(next_audio, crossfade=crossfade_duration)
-
-    # Export the final audio with crossfades to a new file
-    combined.export(output_file, format="wav")
-
 
 class MusicGen:
 
@@ -27,6 +14,19 @@ class MusicGen:
     model.to(device)
     processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
     generation = 1
+
+    def concatenate_with_crossfade(self, file_paths, output_file, crossfade_duration):
+        # Load the first audio file
+        combined = AudioSegment.from_wav(file_paths[0])
+
+        # Iterate over the rest of the files, applying crossfade and concatenating
+        for file_path in file_paths[1:]:
+            next_audio = AudioSegment.from_wav(file_path)
+            # Apply crossfade
+            combined = combined.append(next_audio, crossfade=crossfade_duration)
+
+        # Export the final audio with crossfades to a new file
+        combined.export(output_file, format="wav")
 
     def generate_music(self, prompt, title):
         device=self.device
@@ -67,5 +67,5 @@ class MusicGen:
         output_file = name + "-MASTER.wav"
         crossfade_duration = 3000  # in miliseconds
 
-        concatenate_with_crossfade(file_paths, output_file, crossfade_duration)
+        self.concatenate_with_crossfade(file_paths, output_file, crossfade_duration)
         return output_file
