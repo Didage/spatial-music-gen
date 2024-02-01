@@ -15,17 +15,17 @@ postgres# CREATE DATABASE spatial_music_gen_db OWNER postgres;
 postgres# ALTER USER postgres WITH PASSWORD '1234';
 ```
 
-### First, for the audio server
+### First, for the audio server (Audio CDN Component)
 Inside the audio_server directory run:
 ```
 node audio_server.js
 ```
-### Second, for the model backend
+### Second, for the model backend (FastAPI and MusicGen Model Components)
 Inside the back directory run:
 ```
 python main.py
 ```
-### Lastly, for the frontend
+### Lastly, for the frontend (Web Server Component)
 Inside the front directory run:
 ```
 npm start
