@@ -7,6 +7,14 @@ Install the requirements by running:
 ```
 pip install -r requirements.txt
 ```
+
+The backend runs over a local postgres database. You must first create that database with the following credentials:
+```
+psql
+postgres# CREATE DATABASE spatial_music_gen_db OWNER postgres;
+postgres# ALTER USER postgres WITH PASSWORD '1234';
+```
+
 ### First, for the audio server
 Inside the audio_server directory run:
 ```
